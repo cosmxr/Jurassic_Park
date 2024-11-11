@@ -1,4 +1,5 @@
-package com.example.jurassicpark;
+package com.example.jurassicpark.sensors;
 
-public interface MovementSensor {
+public interface MovementSensor extends Sensor {
+    void detectMovement();
 }

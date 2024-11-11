@@ -1,4 +1,7 @@
-package com.example.jurassicpark;
+package com.example.jurassicpark.sensors;
 
 public interface SensorFactory {
+    MovementSensor createMovementSensor();
+    TemperatureSensor createTemperatureSensor();
+    HeartRateSensor createHeartRateSensor();
 }

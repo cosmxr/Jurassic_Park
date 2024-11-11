@@ -1,4 +1,5 @@
-package com.example.jurassicpark;
+package com.example.jurassicpark.sensors;
 
-public interface HeartRateSensor {
+public interface HeartRateSensor extends Sensor {
+    void monitorHeartRate();
 }

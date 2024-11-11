@@ -1,10 +1,171 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <title>Sensor Monitor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #77aaff 3px solid;
+        }
+        header h1 {
+            text-align: center;
+            text-transform: uppercase;
+            margin: 0;
+            font-size: 24px;
+        }
+        .sensor-data {
+            background: #fff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sensor-data img {
+            width: 200px;
+            height: auto;
+            margin-left: 20px;
+        }
+        .sensor-data p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .details-link {
+            color: purple;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+        }
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const eventSource = new EventSource("/sensor-stream");
+
+            eventSource.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                const container = document.getElementById('sensor-data-container');
+                container.innerHTML = '';
+                data.forEach(sensorInfo => {
+                    const div = document.createElement('div');
+                    div.className = 'sensor-data';
+                    div.innerHTML = `
+                    <div>
+                        <p>Dinosaurio: ${sensorInfo.name}</p>
+                        <p>Recinto: ${sensorInfo.enclosure}</p>
+                       <p>Se mueve: ${sensorInfo.moving ? "Sí" : "No"}</p>
+                        <p>Temperatura: ${sensorInfo.temperature}</p>
+                        <p>Ritmo Cardiaco: ${sensorInfo.heartRate}</p>
+                        <p class="details-link" onclick="displayInfo('${sensorInfo.name}')">Detalles</p>
+                    </div>
+                    <img src="/images/${getImageName(sensorInfo.name)}">
+                `;
+                    container.appendChild(div);
+                });
+            };
+
+            eventSource.onerror = function(error) {
+                console.error('Error fetching sensor data:', error);
+            };
+
+            // Close modal when clicking outside of it
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('infoModal');
+                if (event.target == modal) {
+                    closeModal();
+                }
+            });
+        });
+
+        function displayInfo(dinosaurName) {
+            fetch(`/dinosaur-info?name=${dinosaurName}`)
+                .then(response => response.text())
+                .then(data => {
+                    const modal = document.getElementById('infoModal');
+                    const modalContent = document.getElementById('modalContent');
+                    modalContent.innerHTML = data;
+                    modal.style.display = "block";
+                });
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('infoModal');
+            modal.style.display = "none";
+        }
+
+        function getImageName(dinosaurName) {
+            if (dinosaurName.toLowerCase().includes("t-rex")) {
+                return "t-rex.jpg";
+            } else if (dinosaurName.toLowerCase().includes("velociraptor")) {
+                return "velociraptor.jpg";
+            } else if (dinosaurName.toLowerCase().includes("stegosaurus")) {
+                return "stegosaurus.jpg";
+            } else if (dinosaurName.toLowerCase().includes("triceratops")) {
+                return "triceratops.jpg";
+            }
+            return "default.jpg"; // Default image if no match is found
+        }
+    </script>
 </head>
 <body>
-$END$
+<header>
+    <h1>Sensor Data Monitor</h1>
+</header>
+<div class="container" id="sensor-data-container">
+    <!-- Info del sensor se carga aqui -->
+</div>
+
+<div id="infoModal" class="modal">
+    <div class="modal-content" id="modalContent">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <!-- Info del dinosaurio aqui -->
+    </div>
+</div>
 </body>
 </html>
