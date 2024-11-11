@@ -66,7 +66,7 @@ public class SensorService {
     }
 
     public Flux<List<Dinosaur>> monitorSensors() {
-        return Flux.interval(Duration.ofSeconds(5))
+        return Flux.interval(Duration.ofSeconds(3))
                 .map(tick -> {
                     dinosaurs.forEach(dinosaur -> {
                         dinosaur.updateAttributes();
