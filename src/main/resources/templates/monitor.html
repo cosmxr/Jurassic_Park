@@ -1,3 +1,4 @@
+<!-- monitor.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -51,6 +52,17 @@
             text-decoration: underline;
             cursor: pointer;
         }
+        .hunger-bar {
+            width: 100%;
+            background-color: #ddd;
+        }
+        .hunger-bar-fill {
+            height: 20px;
+            background-color: green;
+            text-align: center;
+            line-height: 20px;
+            color: white;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -93,20 +105,30 @@
                 const container = document.getElementById('sensor-data-container');
                 container.innerHTML = '';
                 data.forEach(sensorInfo => {
-                    const div = document.createElement('div');
-                    div.className = 'sensor-data';
-                    div.innerHTML = `
+                    if (!sensorInfo.isHunted) { // Only add dinosaurs that are not hunted
+                        const div = document.createElement('div');
+                        div.className = 'sensor-data';
+                        const hungerColor = sensorInfo.hungerLevel <= 20 ? 'red' : (sensorInfo.hungerLevel <= 50 ? '#FFD700' : 'green');
+                        div.innerHTML = `
                     <div>
                         <p>Dinosaurio: ${sensorInfo.name}</p>
                         <p>Recinto: ${sensorInfo.enclosure}</p>
-                       <p>Se mueve: ${sensorInfo.moving ? "Si" : "No"}</p>
+                        <p>Se mueve: ${sensorInfo.moving ? "Si" : "No"}</p>
                         <p>Temperatura: ${sensorInfo.temperature}</p>
                         <p>Ritmo Cardiaco: ${sensorInfo.heartRate}</p>
+                        <p>Nivel de Hambre:</p>
+                        <div class="hunger-bar">
+                            <div class="hunger-bar-fill" style="width: ${sensorInfo.hungerLevel}%; background-color: ${hungerColor};">
+                                ${sensorInfo.hungerLevel}%
+                            </div>
+                        </div>
+                        <p>Cazando: ${sensorInfo.hunting ? "Si" : "No"}</p>
                         <p class="details-link" onclick="displayInfo('${sensorInfo.name}')">Detalles</p>
                     </div>
                     <img src="/images/${getImageName(sensorInfo.name)}">
                 `;
-                    container.appendChild(div);
+                        container.appendChild(div);
+                    }
                 });
             };
 

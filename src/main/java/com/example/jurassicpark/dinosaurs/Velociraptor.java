@@ -1,8 +1,9 @@
 package com.example.jurassicpark.dinosaurs;
 
 public class Velociraptor extends Dinosaur {
-    public Velociraptor(String name, String enclosure,Boolean food) {
-        super(name, enclosure, true);
+
+    public Velociraptor(String name, String enclosure,Boolean food, Boolean isHunting) {
+        super(name, enclosure, true,false,false);
     }
 
     @Override

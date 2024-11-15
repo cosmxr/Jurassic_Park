@@ -1,3 +1,4 @@
+// src/main/java/com/example/jurassicpark/service/SensorService.java
 package com.example.jurassicpark.service;
 
 import com.example.jurassicpark.dinosaurs.*;
@@ -5,6 +6,7 @@ import com.example.jurassicpark.factory.SensorFactory;
 import com.example.jurassicpark.sensors.MovementSensor;
 import com.example.jurassicpark.sensors.TemperatureSensor;
 import com.example.jurassicpark.sensors.HeartRateSensor;
+import com.example.jurassicpark.sensors.HungerSensor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +29,7 @@ public class SensorService {
     private final List<Dinosaur> dinosaurs = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final File dataFile = new File("src/main/resources/sensor_data.json");
+    private BoardService boardService;
 
     public SensorService(SensorFactory sensorFactory) {
         this.sensorFactory = sensorFactory;
@@ -38,28 +41,32 @@ public class SensorService {
         // Clean the file on startup
         try (FileWriter writer = new FileWriter(dataFile)) {
             writer.write("[]");
-            logger.info("Data file inicializado: {}", dataFile.getAbsolutePath());
+            logger.info("Data file initialized: {}", dataFile.getAbsolutePath());
         } catch (IOException e) {
-            logger.error("Error inicializando data file", e);
+            logger.error("Error initializing data file", e);
         }
+    }
+
+    public void setBoardService(BoardService boardService) {
+        this.boardService = boardService;
     }
 
     private void generateDinosaurs() {
         Random random = new Random();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 2; i++) {
             int type = random.nextInt(4);
             switch (type) {
                 case 0:
-                    dinosaurs.add(new T_Rex("T-Rex " + i, "" + (i % 10), true));
+                    dinosaurs.add(new T_Rex("T-Rex " + i, "Enclosure " + (i % 10), true, false));
                     break;
                 case 1:
-                    dinosaurs.add(new Velociraptor("Velociraptor " + i, "" + (i % 10),true));
+                    dinosaurs.add(new Velociraptor("Velociraptor " + i, "Enclosure " + (i % 10), true, false));
                     break;
                 case 2:
-                    dinosaurs.add(new Stegosaurus("Stegosaurus " + i, "" + (i % 10),false));
+                    dinosaurs.add(new Stegosaurus("Stegosaurus " + i, "Enclosure " + (i % 10), false, false));
                     break;
                 case 3:
-                    dinosaurs.add(new Triceratops("Triceratops " + i, "" + (i % 10),false));
+                    dinosaurs.add(new Triceratops("Triceratops " + i, "Enclosure " + (i % 10), false, false));
                     break;
             }
         }
@@ -69,32 +76,56 @@ public class SensorService {
         return Flux.interval(Duration.ofSeconds(3))
                 .map(tick -> {
                     dinosaurs.forEach(dinosaur -> {
-                        dinosaur.updateAttributes();
-                        MovementSensor movementSensor = sensorFactory.createMovementSensor(dinosaur);
-                        TemperatureSensor temperatureSensor = sensorFactory.createTemperatureSensor(dinosaur);
-                        HeartRateSensor heartRateSensor = sensorFactory.createHeartRateSensor(dinosaur);
+                        if (!dinosaur.isHunted(dinosaur)) {
+                            dinosaur.updateAttributes();
+                            MovementSensor movementSensor = sensorFactory.createMovementSensor(dinosaur);
+                            TemperatureSensor temperatureSensor = sensorFactory.createTemperatureSensor(dinosaur);
+                            HeartRateSensor heartRateSensor = sensorFactory.createHeartRateSensor(dinosaur);
+                            HungerSensor hungerSensor = sensorFactory.createHungerSensor(dinosaur);
 
-                        movementSensor.readData();
-                        temperatureSensor.readData();
-                        heartRateSensor.readData();
+                            movementSensor.readData();
+                            temperatureSensor.readData();
+                            heartRateSensor.readData();
+                            hungerSensor.readData();
+                        } else {
+                            removeDinosaur(dinosaur);
+                        }
                     });
 
                     try (FileWriter writer = new FileWriter(dataFile, false)) {
                         String jsonData = objectMapper.writeValueAsString(dinosaurs);
                         writer.write(jsonData);
-                        logger.info("Sensor data escrita al archivo: {}", jsonData);
+                        logger.info("Sensor data written to file: {}", jsonData);
                     } catch (IOException e) {
-                        logger.error("Errror escribiendo la informacion al archivo", e);
+                        logger.error("Error writing data to file", e);
                     }
                     return dinosaurs;
                 });
     }
+
     public Dinosaur getDinosaurByName(String name) {
         return dinosaurs.stream()
                 .filter(dinosaur -> dinosaur.getName().equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
     }
+
+    public void removeDinosaur(Dinosaur dinosaur) {
+        dinosaurs.remove(dinosaur);
+        logger.info("Dinosaur removed: " + dinosaur.getName());
+        updateJsonFile();
+    }
+
+    private void updateJsonFile() {
+        try (FileWriter writer = new FileWriter(dataFile, false)) {
+            String jsonData = objectMapper.writeValueAsString(dinosaurs);
+            writer.write(jsonData);
+            logger.info("Updated sensor data written to file: {}", jsonData);
+        } catch (IOException e) {
+            logger.error("Error updating data file", e);
+        }
+    }
+
     public String getImageName(String dinosaurName) {
         if (dinosaurName.toLowerCase().contains("t-rex")) {
             return "t-rex.jpg";
@@ -105,6 +136,10 @@ public class SensorService {
         } else if (dinosaurName.toLowerCase().contains("triceratops")) {
             return "triceratops.jpg";
         }
-        return "default.jpg"; // Imagen por defecto si no se encuentra coincidencia
+        return "default.jpg"; // Default image if no match is found
+    }
+
+    public List<Dinosaur> getDinosaurs() {
+        return dinosaurs;
     }
 }

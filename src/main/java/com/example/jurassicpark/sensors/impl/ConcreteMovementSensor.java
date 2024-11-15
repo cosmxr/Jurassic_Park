@@ -1,7 +1,7 @@
 package com.example.jurassicpark.sensors.impl;
 
 import com.example.jurassicpark.sensors.MovementSensor;
-import com.example.jurassicpark.dinosaurs.*;
+import com.example.jurassicpark.dinosaurs.Dinosaur;
 
 public class ConcreteMovementSensor implements MovementSensor {
     private Dinosaur dinosaur;
@@ -17,6 +17,6 @@ public class ConcreteMovementSensor implements MovementSensor {
 
     @Override
     public void detectMovement() {
-        System.out.println("Movimineto detectado de: " + dinosaur.getName());
+        System.out.println("Movimiento detectado de: " + dinosaur.getName() + " en posición (" + dinosaur.getX() + ", " + dinosaur.getY() + ")");
     }
 }
