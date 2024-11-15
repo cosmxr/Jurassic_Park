@@ -40,11 +40,11 @@
     <h1>Enfermería de Dinosaurios</h1>
 </div>
 <div class="dinosaur-list" id="dinosaur-list">
-    <!-- Lista de dinosaurios heridos se cargará aquí -->
+    <!-- Lista de dinosaurios muertos se cargará aquí -->
 </div>
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        fetch('/api/dinosaurios/heridos')
+        fetch('/api/dinosaurios/muertos')
             .then(response => response.json())
             .then(data => {
                 const list = document.getElementById('dinosaur-list');
@@ -54,7 +54,7 @@
                     div.innerHTML = `
                         <h2>${dino.name}</h2>
                         <p>Recinto: ${dino.enclosure}</p>
-                        <p>Estado: ${dino.healthStatus}</p>
+                        <p>Estado: Muerto</p>
                     `;
                     list.appendChild(div);
                 });
