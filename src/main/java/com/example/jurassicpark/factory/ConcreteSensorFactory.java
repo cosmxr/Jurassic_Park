@@ -1,12 +1,15 @@
+// ConcreteSensorFactory.java
 package com.example.jurassicpark.factory;
 
 import com.example.jurassicpark.dinosaurs.Dinosaur;
 import com.example.jurassicpark.sensors.MovementSensor;
 import com.example.jurassicpark.sensors.TemperatureSensor;
 import com.example.jurassicpark.sensors.HeartRateSensor;
+import com.example.jurassicpark.sensors.HungerSensor;
 import com.example.jurassicpark.sensors.impl.ConcreteMovementSensor;
 import com.example.jurassicpark.sensors.impl.ConcreteTemperatureSensor;
 import com.example.jurassicpark.sensors.impl.ConcreteHeartRateSensor;
+import com.example.jurassicpark.sensors.impl.ConcreteHungerSensor;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -24,5 +27,10 @@ public class ConcreteSensorFactory implements SensorFactory {
     @Override
     public HeartRateSensor createHeartRateSensor(Dinosaur dinosaur) {
         return new ConcreteHeartRateSensor(dinosaur);
+    }
+
+    @Override
+    public HungerSensor createHungerSensor(Dinosaur dinosaur) {
+        return new ConcreteHungerSensor(dinosaur);
     }
 }

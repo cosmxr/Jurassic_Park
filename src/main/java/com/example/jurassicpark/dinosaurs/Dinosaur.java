@@ -1,6 +1,11 @@
+// Dinosaur.java
 package com.example.jurassicpark.dinosaurs;
 
+import com.example.jurassicpark.service.BoardService;
+import com.example.jurassicpark.service.SensorService;
 import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -10,14 +15,16 @@ import java.util.Locale;
 import java.util.Random;
 
 public abstract class Dinosaur {
+
     @Getter
     private String name;
     @Getter
     private String enclosure;
-    @Getter
+    @Getter @Setter
     private double temperature;
-    @Getter
+    @Getter @Setter
     private int heartRate;
+    @Setter
     private boolean isMoving;
     @Getter
     private String birthDate;
@@ -25,11 +32,19 @@ public abstract class Dinosaur {
     private double height;
     @Getter
     private double weight;
+    @Getter @Setter
+    private double hungerLevel;
+    @Getter @Setter
+    private int x;
+    @Getter @Setter
+    private int y;
     @Getter
     private boolean isCarnivorous;
     private Random random = new Random();
+    @Getter @Setter
+    public boolean isHunting;
 
-    public Dinosaur(String name, String enclosure, boolean isCarnivorous) {
+    public Dinosaur(String name, String enclosure, boolean isCarnivorous, boolean isHunting) {
         this.name = name;
         this.enclosure = enclosure;
         this.temperature = generateRandomTemperature();
@@ -39,16 +54,50 @@ public abstract class Dinosaur {
         this.height = generateRandomHeight();
         this.weight = generateRandomWeight();
         this.isCarnivorous = isCarnivorous;
+        this.hungerLevel = 100.0;
+        this.x = random.nextInt(6);
+        this.y = random.nextInt(6);
     }
 
     public Boolean isMoving() {
         return isMoving;
-        }
-
+    }
     public void updateAttributes() {
         this.temperature = generateRandomTemperature();
         this.heartRate = generateRandomHeartRate();
         this.isMoving = generateRandomMovement();
+        decreaseHungerLevel();
+        if (isCarnivorous && hungerLevel == 0) {
+            isHunting();
+        }
+    }
+
+    private void decreaseHungerLevel() {
+        double decrease = 1.0 + (30.0 - 1.0) * random.nextDouble();
+        DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+        DecimalFormat df = new DecimalFormat("#.##", symbols);
+        decrease = Double.parseDouble(df.format(decrease));
+        this.hungerLevel = Math.max(0, this.hungerLevel - decrease);
+    }
+    public boolean isHunting() {
+        if (hungerLevel == 0 && isCarnivorous()){
+            System.out.println(name + " is hunting!");
+            return true;}
+        else{
+            return false;
+        }
+    }
+    public boolean huntAttempt(Dinosaur hunter, Dinosaur prey) {
+        if (hunter.isCarnivorous() && prey != null) {
+            double successChance = random.nextDouble(); // Probabilidad de éxito
+            if (successChance > 0.5) { // 50% de probabilidad de éxito
+                prey.setHunting(false); // Detener su caza
+                hunter.setHungerLevel(100);
+
+                return true; // Presa cazada
+            }
+        }
+        return false; // Presa escapó
     }
 
     private double generateRandomTemperature() {
