@@ -61,31 +61,30 @@ public class BoardService {
     private void moveDinosaurs() {
         List<Dinosaur> dinosaurs = sensorService.getDinosaurs();
         for (Dinosaur dinosaur : dinosaurs) {
-
             if (dinosaur.isHunting()) {
                 checkAdjacentDinosaurs(dinosaur);
             }
-            if (!dinosaur.isHunted(dinosaur)){
-            int oldX = dinosaur.getX();
-            int oldY = dinosaur.getY();
-            int newX, newY;
-            do {
-                newX = oldX + random.nextInt(3) - 1;
-                newY = oldY + random.nextInt(3) - 1;
-            } while ((newX < 0 || newX >= 5 || newY < 0 || newY >= 5) || (board[newX][newY].getDinosaur() != null));
-            board[oldX][oldY].setDinosaur(null);
-            dinosaur.setX(newX);
-            dinosaur.setY(newY);
-            board[newX][newY].setDinosaur(dinosaur);
+                int oldX = dinosaur.getX();
+                int oldY = dinosaur.getY();
+                int newX, newY;
+                do {
+                    newX = oldX + random.nextInt(3) - 1;
+                    newY = oldY + random.nextInt(3) - 1;
+                } while ((newX < 0 || newX >= 5 || newY < 0 || newY >= 5) || (board[newX][newY].getDinosaur() != null));
+                board[oldX][oldY].setDinosaur(null);
+                dinosaur.setX(newX);
+                dinosaur.setY(newY);
+                board[newX][newY].setDinosaur(dinosaur);
 
-            // Detect movement using the sensor
-            ConcreteMovementSensor sensor = new ConcreteMovementSensor(dinosaur);
-            sensor.detectMovement();
-        }else{
-removeDinosaurFromBoard(dinosaur);
-            }}
+                // Detectar movimiento usando el sensor
+                ConcreteMovementSensor sensor = new ConcreteMovementSensor(dinosaur);
+                sensor.detectMovement();
+
+        }
         logMovements(dinosaurs);
-        sink.tryEmitNext(dinosaurs);
+        sink.tryEmitNext(dinosaurs.stream()
+                .filter(d -> board[d.getX()][d.getY()].getDinosaur() != null) // Solo dinos vivos
+                .toList());
     }
 
     private void checkAdjacentDinosaurs(Dinosaur dinosaur) {
@@ -94,18 +93,26 @@ removeDinosaurFromBoard(dinosaur);
 
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
-                if (i == 0 && j == 0) continue; // Ignore own cell
+                if (i == 0 && j == 0) continue; // Ignorar la celda actual
                 int adjX = x + i;
                 int adjY = y + j;
+
                 if (adjX >= 0 && adjX < 7 && adjY >= 0 && adjY < 7) {
                     Dinosaur adjacentDinosaur = board[adjX][adjY].getDinosaur();
+
                     if (adjacentDinosaur != null && adjacentDinosaur != dinosaur) {
-                        dinosaur.huntAttempt(dinosaur, adjacentDinosaur);
+                        boolean wasHunted = dinosaur.huntAttempt(dinosaur, adjacentDinosaur);
+                        if (wasHunted) {
+                            sensorService.removeDinosaur(adjacentDinosaur);
+                            removeDinosaurFromBoard(adjacentDinosaur);
+                            break; // Salir del bucle al cazar
+                        }
                     }
                 }
             }
         }
     }
+
 
     public void removeDinosaurFromBoard(Dinosaur dinosaur) {
         int x = dinosaur.getX();

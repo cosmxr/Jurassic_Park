@@ -41,9 +41,7 @@
                 const cells = Array.from({ length: 7 }, () => Array(7).fill(null));
 
                 data.forEach(dinosaur => {
-                    if (!dinosaur.isHunted) { // Only add dinosaurs that are not hunted
                         cells[dinosaur.x][dinosaur.y] = dinosaur;
-                    }
                 });
 
                 for (let i = 0; i < 7; i++) {

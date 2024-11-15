@@ -42,10 +42,8 @@ public abstract class Dinosaur {
     private Random random = new Random();
     @Getter @Setter
     public boolean isHunting;
-    @Setter
-    public boolean isHunted;
 
-    public Dinosaur(String name, String enclosure, boolean isCarnivorous, boolean isHunting, boolean isHunted) {
+    public Dinosaur(String name, String enclosure, boolean isCarnivorous, boolean isHunting) {
         this.name = name;
         this.enclosure = enclosure;
         this.temperature = generateRandomTemperature();
@@ -63,9 +61,6 @@ public abstract class Dinosaur {
     public Boolean isMoving() {
         return isMoving;
     }
-public boolean isHunted(Dinosaur dinosaur){
-        return isHunted;
-}
     public void updateAttributes() {
         this.temperature = generateRandomTemperature();
         this.heartRate = generateRandomHeartRate();
@@ -83,7 +78,6 @@ public boolean isHunted(Dinosaur dinosaur){
         decrease = Double.parseDouble(df.format(decrease));
         this.hungerLevel = Math.max(0, this.hungerLevel - decrease);
     }
-
     public boolean isHunting() {
         if (hungerLevel == 0 && isCarnivorous()){
             System.out.println(name + " is hunting!");
@@ -92,24 +86,18 @@ public boolean isHunted(Dinosaur dinosaur){
             return false;
         }
     }
-    public void huntAttempt(Dinosaur hunter, Dinosaur prey) {
-        if (!hunter.isCarnivorous() || prey == null) {
-            System.out.println(hunter.getName() + " cannot hunt " + prey.getName());
-            return;
+    public boolean huntAttempt(Dinosaur hunter, Dinosaur prey) {
+        if (hunter.isCarnivorous() && prey != null) {
+            double successChance = random.nextDouble(); // Probabilidad de éxito
+            if (successChance > 0.5) { // 50% de probabilidad de éxito
+                prey.setHunting(false); // Detener su caza
+                hunter.setHungerLevel(100);
+                return true; // Presa cazada
+            }
         }
-
-        Random random = new Random();
-        boolean success = random.nextBoolean(); // Simulate if the hunt is successful or not
-
-        if (success) {
-            System.out.println(hunter.getName() + " successfully hunted " + prey.getName() + "!");
-            hunter.setHungerLevel(100.0);
-            prey.setHeartRate(0);
-            isHunted(prey);
-        } else {
-            System.out.println(hunter.getName() + " failed to hunt " + prey.getName());
-        }
+        return false; // Presa escapó
     }
+
     private double generateRandomTemperature() {
         double temperature = 30.0 + (40.0 - 30.0) * random.nextDouble();
         DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);

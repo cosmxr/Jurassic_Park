@@ -73,10 +73,10 @@ public class SensorService {
     }
 
     public Flux<List<Dinosaur>> monitorSensors() {
-        return Flux.interval(Duration.ofSeconds(3))
+        return Flux.interval(Duration.ofSeconds(5))
                 .map(tick -> {
                     dinosaurs.forEach(dinosaur -> {
-                        if (!dinosaur.isHunted(dinosaur)) {
+
                             dinosaur.updateAttributes();
                             MovementSensor movementSensor = sensorFactory.createMovementSensor(dinosaur);
                             TemperatureSensor temperatureSensor = sensorFactory.createTemperatureSensor(dinosaur);
@@ -87,9 +87,6 @@ public class SensorService {
                             temperatureSensor.readData();
                             heartRateSensor.readData();
                             hungerSensor.readData();
-                        } else {
-                            removeDinosaur(dinosaur);
-                        }
                     });
 
                     try (FileWriter writer = new FileWriter(dataFile, false)) {
@@ -113,8 +110,10 @@ public class SensorService {
     public void removeDinosaur(Dinosaur dinosaur) {
         dinosaurs.remove(dinosaur);
         logger.info("Dinosaur removed: " + dinosaur.getName());
+        boardService.removeDinosaurFromBoard(dinosaur);
         updateJsonFile();
     }
+
 
     private void updateJsonFile() {
         try (FileWriter writer = new FileWriter(dataFile, false)) {
