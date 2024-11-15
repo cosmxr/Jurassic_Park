@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinosaurios en sus Hábitats</title>
+    <style>
+        body {
+            font-family: 'Press Start 2P', cursive;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .header {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        .habitat-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .habitat {
+            background-size: cover;
+            background-position: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            height: 200px;
+        }
+        .dinosaur {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+            image-rendering: pixelated;
+        }
+        .habitat h2 {
+            font-size: 18px;
+            color: #333;
+        }
+        .habitat p {
+            font-size: 14px;
+            color: #555;
+        }
+        #habitat-selva {
+            background-image: url('/images/selva.png');
+        }
+        #habitat-pradera {
+            background-image: url('/images/pradera.png');
+        }
+        #habitat-desierto {
+            background-image: url('/images/desierto.png');
+        }
+        #habitat-selvaamazonica {
+            background-image: url('/images/selvaamazonica.png');
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
+<body>
+<div class="header">
+    <h1>Dinosaurios en sus Hábitats</h1>
+</div>
+<div class="habitat-container">
+    <div class="habitat" id="habitat-selvaamazonica">
+        <img src="/images/t-rex.jpg" alt="T-Rex-1" class="dinosaur" id="t-rex1">
+        <img src="/images/t-rex.jpg" alt="T-Rex-2" class="dinosaur" id="t-rex2">
+        <h2>SelvaAmazonica</h2>
+        <p>Hábitat: SelvaAmazonica</p>
+    </div>
+    <div class="habitat" id="habitat-selva">
+        <img src="/images/triceratops.jpg" alt="Triceratops-1" class="dinosaur" id="triceratops1">
+        <img src="/images/triceratops.jpg" alt="Triceratops-2" class="dinosaur" id="triceratops2">
+        <h2>Selva</h2>
+        <p>Hábitat: Selva</p>
+    </div>
+    <div class="habitat" id="habitat-pradera">
+        <img src="/images/stegosaurus.jpg" alt="stegosaurus-1" class="dinosaur" id="stegosaurus1">
+        <img src="/images/stegosaurus.jpg" alt="stegosaurus-2" class="dinosaur" id="stegosaurus2">
+        <h2>Pradera</h2>
+        <p>Hábitat: Pradera</p>
+    </div>
+    <div class="habitat" id="habitat-desierto">
+        <img src="/images/velociraptor.jpg" alt="velociraptor-1" class="dinosaur" id="velociraptor1">
+        <img src="/images/velociraptor.jpg" alt="velociraptor-2" class="dinosaur" id="velociraptor2">
+        <h2>Desierto</h2>
+        <p>Hábitat: Desierto</p>
+    </div>
+
+</div>
+
+<script>
+    function moveDinosaur(dinoId, habitatId) {
+        const dino = document.getElementById(dinoId);
+        const habitat = document.getElementById(habitatId);
+        const maxX = habitat.clientWidth - dino.clientWidth;
+        const maxY = habitat.clientHeight - dino.clientHeight;
+
+        setInterval(() => {
+            const x = Math.random() * maxX;
+            const y = Math.random() * maxY;
+            dino.style.left = `${x}px`;
+            dino.style.top = `${y}px`;
+        }, 2000);
+    }
+
+    moveDinosaur('t-rex1', 'habitat-selvaamazonica');
+    moveDinosaur('t-rex2', 'habitat-selvaamazonica');
+    moveDinosaur('triceratops1', 'habitat-selva');
+    moveDinosaur('triceratops2', 'habitat-selva');
+    moveDinosaur('stegosaurus1', 'habitat-pradera');
+    moveDinosaur('stegosaurus2', 'habitat-pradera');
+    moveDinosaur('velociraptor1', 'habitat-desierto');
+    moveDinosaur('velociraptor2', 'habitat-desierto');
+</script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jurassic Park</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+    body {
+      font-family: 'Press Start 2P', cursive;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      height: 100vh;
+      margin: 0;
+      background-color: #000;
+      color: #fff;
+      background-image: url('/images/jurassic_park_background.png');
+      background-size: cover;
+      background-position: center;
+    }
+    .header {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .header img {
+      width: 200px;
+      image-rendering: pixelated;
+    }
+    .buttons-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 120px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-family: 'Press Start 2P', cursive;
+      image-rendering: pixelated;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    button:hover {
+      background-color: #45a049;
+      transform: scale(1.05);
+    }
+    footer {
+      text-align: center;
+      padding: 10px;
+      background-color: rgba(0, 0, 0, 0.5);
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+    }
+    footer p {
+      margin: 0;
+      font-size: 10px;
+      color: #ccc;
+    }
+  </style>
+</head>
+<body>
+<div class="header">
+  <h1>Jurassic Park</h1>
+</div>
+<div class="buttons-container">
+  <button onclick="location.href='/monitor'">Ver Monitor de Sensores</button>
+  <button onclick="location.href='/dinosaurios'">Ver Dinosaurios en sus Hábitats</button>
+  <button onclick="location.href='/enfermeria'">Ver Enfermería con Dinosaurios Heridos</button>
+</div>
+<footer>
+  <p>&copy; 2024 Jurassic Park. All rights reserved.</p>
+</footer>
+</body>
+</html>

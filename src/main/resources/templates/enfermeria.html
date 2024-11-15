@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enfermería - Jurassic World</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f4f4f9;
+        }
+        .header {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        .dinosaur-list {
+            width: 80%;
+            margin-top: 20px;
+        }
+        .dinosaur-item {
+            background: #fff;
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+<body>
+<div class="header">
+    <h1>Enfermería de Dinosaurios</h1>
+</div>
+<div class="dinosaur-list" id="dinosaur-list">
+    <!-- Lista de dinosaurios heridos se cargará aquí -->
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        fetch('/api/dinosaurios/heridos')
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('dinosaur-list');
+                data.forEach(dino => {
+                    const div = document.createElement('div');
+                    div.className = 'dinosaur-item';
+                    div.innerHTML = `
+                        <h2>${dino.name}</h2>
+                        <p>Recinto: ${dino.enclosure}</p>
+                        <p>Estado: ${dino.healthStatus}</p>
+                    `;
+                    list.appendChild(div);
+                });
+            });
+    });
+</script>
+</body>
+</html>
