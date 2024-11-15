@@ -5,6 +5,7 @@ import com.example.jurassicpark.service.BoardService;
 import com.example.jurassicpark.service.SensorService;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -92,6 +93,7 @@ public abstract class Dinosaur {
             if (successChance > 0.5) { // 50% de probabilidad de éxito
                 prey.setHunting(false); // Detener su caza
                 hunter.setHungerLevel(100);
+
                 return true; // Presa cazada
             }
         }
