@@ -1,12 +1,12 @@
-// src/main/java/com/example/jurassicpark/service/SensorService.java
+// SensorService.java
 package com.example.jurassicpark.service;
 
 import com.example.jurassicpark.dinosaurs.*;
 import com.example.jurassicpark.factory.SensorFactory;
-import com.example.jurassicpark.sensors.MovementSensor;
-import com.example.jurassicpark.sensors.TemperatureSensor;
 import com.example.jurassicpark.sensors.HeartRateSensor;
 import com.example.jurassicpark.sensors.HungerSensor;
+import com.example.jurassicpark.sensors.MovementSensor;
+import com.example.jurassicpark.sensors.TemperatureSensor;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 @Service
 public class SensorService {
@@ -29,11 +30,13 @@ public class SensorService {
     private final List<Dinosaur> dinosaurs = new ArrayList<>();
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final File dataFile = new File("src/main/resources/sensor_data.json");
+    private final List<Dinosaur> deadDinosaurs = new ArrayList<>();
     private BoardService boardService;
 
     public SensorService(SensorFactory sensorFactory) {
         this.sensorFactory = sensorFactory;
         generateDinosaurs();
+        addDeadDinosaurs(); // Add this line
     }
 
     @PostConstruct
@@ -72,21 +75,26 @@ public class SensorService {
         }
     }
 
+    private void addDeadDinosaurs() {
+        deadDinosaurs.add(new T_Rex("Dead T-Rex 1", "Enclosure 1", true, false));
+        deadDinosaurs.add(new Velociraptor("Dead Velociraptor 1", "Enclosure 2", true, false));
+    }
+
     public Flux<List<Dinosaur>> monitorSensors() {
         return Flux.interval(Duration.ofSeconds(5))
                 .map(tick -> {
                     dinosaurs.forEach(dinosaur -> {
 
-                            dinosaur.updateAttributes();
-                            MovementSensor movementSensor = sensorFactory.createMovementSensor(dinosaur);
-                            TemperatureSensor temperatureSensor = sensorFactory.createTemperatureSensor(dinosaur);
-                            HeartRateSensor heartRateSensor = sensorFactory.createHeartRateSensor(dinosaur);
-                            HungerSensor hungerSensor = sensorFactory.createHungerSensor(dinosaur);
+                        dinosaur.updateAttributes();
+                        MovementSensor movementSensor = sensorFactory.createMovementSensor(dinosaur);
+                        TemperatureSensor temperatureSensor = sensorFactory.createTemperatureSensor(dinosaur);
+                        HeartRateSensor heartRateSensor = sensorFactory.createHeartRateSensor(dinosaur);
+                        HungerSensor hungerSensor = sensorFactory.createHungerSensor(dinosaur);
 
-                            movementSensor.readData();
-                            temperatureSensor.readData();
-                            heartRateSensor.readData();
-                            hungerSensor.readData();
+                        movementSensor.readData();
+                        temperatureSensor.readData();
+                        heartRateSensor.readData();
+                        hungerSensor.readData();
                     });
 
                     try (FileWriter writer = new FileWriter(dataFile, false)) {
@@ -114,7 +122,6 @@ public class SensorService {
         updateJsonFile();
     }
 
-
     private void updateJsonFile() {
         try (FileWriter writer = new FileWriter(dataFile, false)) {
             String jsonData = objectMapper.writeValueAsString(dinosaurs);
@@ -139,6 +146,12 @@ public class SensorService {
     }
 
     public List<Dinosaur> getDinosaurs() {
-        return dinosaurs;
+        return dinosaurs.stream()
+                .filter(dinosaur -> !deadDinosaurs.contains(dinosaur))
+                .collect(Collectors.toList());
+    }
+
+    public List<Dinosaur> getDeadDinosaurs() {
+        return deadDinosaurs;
     }
 }

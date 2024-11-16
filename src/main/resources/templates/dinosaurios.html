@@ -30,6 +30,9 @@
             width: 350px;
             height: 350px;
             position: relative;
+            background-image: url('/images/fondomapadinosaurios.jpeg');
+            background-size: cover;
+            background-position: center;
         }
         .cell {
             width: 50px;
@@ -107,6 +110,7 @@
         infirmary.appendChild(dino);
         dino.style.left = '0px';
         dino.style.top = '0px';
+        dino.style.display = 'block';
     }
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -119,6 +123,18 @@
         moveDinosaur('velociraptor1', 'board');
         moveDinosaur('velociraptor2', 'board');
     });
+
+    const eventSource = new EventSource("/movement-stream");
+    eventSource.onmessage = function(event) {
+        const data = JSON.parse(event.data);
+        data.forEach(dinosaur => {
+            const dinoElement = document.getElementById(dinosaur.name.toLowerCase().replace(/\s+/g, '-'));
+            if (dinoElement) {
+                dinoElement.style.left = `${dinosaur.x * 50}px`;
+                dinoElement.style.top = `${dinosaur.y * 50}px`;
+            }
+        });
+    };
 </script>
 </body>
 </html>

@@ -25,4 +25,5 @@ public class ViewController {
     public String enfermeriaView() {
         return "enfermeria";
     }
+
 }

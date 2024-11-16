@@ -32,6 +32,19 @@
             margin: 10px 0;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .dinosaur-item img {
+            width: 100px;
+            height: auto;
+            margin-bottom: 10px;
+        }
+        .dinosaur-item p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #555;
         }
     </style>
 </head>
@@ -47,19 +60,41 @@
         fetch('/api/dinosaurios/muertos')
             .then(response => response.json())
             .then(data => {
-                const list = document.getElementById('dinosaur-list');
-                data.forEach(dino => {
-                    const div = document.createElement('div');
-                    div.className = 'dinosaur-item';
-                    div.innerHTML = `
-                        <h2>${dino.name}</h2>
-                        <p>Recinto: ${dino.enclosure}</p>
-                        <p>Estado: Muerto</p>
+                const dinosaurList = document.getElementById('dinosaur-list');
+                dinosaurList.innerHTML = '';
+                data.forEach(dinosaur => {
+                    const dinoItem = document.createElement('div');
+                    dinoItem.className = 'dinosaur-item';
+                    dinoItem.innerHTML = `
+                        <img src="/images/${getImageName(dinosaur.name)}" alt="${dinosaur.name}">
+                        <p>Nombre: ${dinosaur.name}</p>
+                        <p>Recinto: ${dinosaur.enclosure}</p>
+                        <p>Temperatura: ${dinosaur.temperature} °C</p>
+                        <p>Ritmo Cardiaco: ${dinosaur.heartRate} bpm</p>
+                        <p>Fecha de Nacimiento: ${dinosaur.birthDate}</p>
+                        <p>Estatura: ${dinosaur.height} metros</p>
+                        <p>Peso: ${dinosaur.weight} kg</p>
+                        <p>Nivel de Hambre: ${dinosaur.hungerLevel}%</p>
+                        <p>Carnívoro: ${dinosaur.isCarnivorous ? 'Sí' : 'No'}</p>
                     `;
-                    list.appendChild(div);
+                    dinosaurList.appendChild(dinoItem);
                 });
-            });
+            })
+            .catch(error => console.error('Error fetching dead dinosaurs:', error));
     });
+
+    function getImageName(dinosaurName) {
+        if (dinosaurName.toLowerCase().includes("t-rex")) {
+            return "t-rex.jpg";
+        } else if (dinosaurName.toLowerCase().includes("velociraptor")) {
+            return "velociraptor.jpg";
+        } else if (dinosaurName.toLowerCase().includes("stegosaurus")) {
+            return "stegosaurus.jpg";
+        } else if (dinosaurName.toLowerCase().includes("triceratops")) {
+            return "triceratops.jpg";
+        }
+        return "default.jpg"; // Default image if no match is found
+    }
 </script>
 </body>
 </html>
