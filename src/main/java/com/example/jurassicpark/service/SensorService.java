@@ -23,8 +23,11 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+//Clase que representa el servicio de los sensores
 @Service
 public class SensorService {
+
+    //Variables
     private static final Logger logger = LoggerFactory.getLogger(SensorService.class);
     private final SensorFactory sensorFactory;
     private final List<Dinosaur> dinosaurs = new ArrayList<>();
@@ -33,15 +36,16 @@ public class SensorService {
     private final List<Dinosaur> deadDinosaurs = new ArrayList<>();
     private BoardService boardService;
 
+    //Constructor
     public SensorService(SensorFactory sensorFactory) {
         this.sensorFactory = sensorFactory;
         generateDinosaurs();
         addDeadDinosaurs(); // Add this line
     }
 
+    //Metodo que inicializa el archivo de datos
     @PostConstruct
     public void init() {
-        // Clean the file on startup
         try (FileWriter writer = new FileWriter(dataFile)) {
             writer.write("[]");
             logger.info("Data file initialized: {}", dataFile.getAbsolutePath());
@@ -50,10 +54,12 @@ public class SensorService {
         }
     }
 
+    //Metodo que establece el servicio de tablero
     public void setBoardService(BoardService boardService) {
         this.boardService = boardService;
     }
 
+    //Metodo que genera los dinosaurios
     private void generateDinosaurs() {
         Random random = new Random();
         for (int i = 0; i < 2; i++) {
@@ -75,13 +81,17 @@ public class SensorService {
         }
     }
 
+    //Metodo que añade los dinosaurios muertos
     private void addDeadDinosaurs() {
         deadDinosaurs.add(new T_Rex("Dead T-Rex 1", "Enclosure 1", true, false));
         deadDinosaurs.add(new Velociraptor("Dead Velociraptor 1", "Enclosure 2", true, false));
     }
 
+    //Metodo que monitorea los sensores
     public Flux<List<Dinosaur>> monitorSensors() {
+        //Devuelve un flujo de datos que emite un valor cada 5 segundos
         return Flux.interval(Duration.ofSeconds(5))
+                //Mapea el flujo de datos a una lista de dinosaurios
                 .map(tick -> {
                     dinosaurs.forEach(dinosaur -> {
 
@@ -108,6 +118,7 @@ public class SensorService {
                 });
     }
 
+    //Metodo que busca un dinosaurio por nombre
     public Dinosaur getDinosaurByName(String name) {
         return dinosaurs.stream()
                 .filter(dinosaur -> dinosaur.getName().equalsIgnoreCase(name))
@@ -115,6 +126,7 @@ public class SensorService {
                 .orElse(null);
     }
 
+    //Metodo que añade un dinosaurio
     public void removeDinosaur(Dinosaur dinosaur) {
         dinosaurs.remove(dinosaur);
         logger.info("Dinosaur removed: " + dinosaur.getName());
@@ -122,6 +134,7 @@ public class SensorService {
         updateJsonFile();
     }
 
+    //Metodo que actualiza el archivo de datos
     private void updateJsonFile() {
         try (FileWriter writer = new FileWriter(dataFile, false)) {
             String jsonData = objectMapper.writeValueAsString(dinosaurs);
@@ -132,6 +145,7 @@ public class SensorService {
         }
     }
 
+    //Metodo que retorna el nombre de la imagen
     public String getImageName(String dinosaurName) {
         if (dinosaurName.toLowerCase().contains("t-rex")) {
             return "t-rex.jpg";
@@ -145,12 +159,14 @@ public class SensorService {
         return "default.jpg"; // Default image if no match is found
     }
 
+    //Metodo que retorna los dinosaurios
     public List<Dinosaur> getDinosaurs() {
         return dinosaurs.stream()
                 .filter(dinosaur -> !deadDinosaurs.contains(dinosaur))
                 .collect(Collectors.toList());
     }
 
+    //Metodo que retorna los dinosaurios muertos
     public List<Dinosaur> getDeadDinosaurs() {
         return deadDinosaurs;
     }

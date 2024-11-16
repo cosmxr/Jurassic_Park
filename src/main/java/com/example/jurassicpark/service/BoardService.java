@@ -18,8 +18,11 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+//Clase que representa el servicio del tablero
 @Service
 public class BoardService {
+
+    //Variables
     private final Cell[][] board = new Cell[7][7];
     private final Random random = new Random();
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -28,6 +31,7 @@ public class BoardService {
     private final Sinks.Many<List<Dinosaur>> sink = Sinks.many().replay().latest();
     private final SensorService sensorService;
 
+    //Constructor que inicializa el tablero con celdas vacías y establece el servicio de sensores
     public BoardService(SensorService sensorService) {
         this.sensorService = sensorService;
         // Initialize the board with empty cells
@@ -38,12 +42,14 @@ public class BoardService {
         }
     }
 
+    //Metodo que inicializa el tablero
     @PostConstruct
     public void init() {
         placeDinosaursOnBoard();
         scheduler.scheduleAtFixedRate(this::moveDinosaurs, 0, 3, TimeUnit.SECONDS);
     }
 
+    //Metodo que coloca los dinosaurios en el tablero
     private void placeDinosaursOnBoard() {
         List<Dinosaur> dinosaurs = sensorService.getDinosaurs();
         for (Dinosaur dinosaur : dinosaurs) {
@@ -58,6 +64,7 @@ public class BoardService {
         }
     }
 
+    //Metodo que mueve los dinosaurios en el tablero
     private void moveDinosaurs() {
         List<Dinosaur> dinosaurs = sensorService.getDinosaurs();
         for (Dinosaur dinosaur : dinosaurs) {
@@ -86,19 +93,23 @@ public class BoardService {
                 .toList());
     }
 
+    //Metodo que verifica si hay dinosaurios adyacentes en el tablero para cazar
     private void checkAdjacentDinosaurs(Dinosaur dinosaur) {
         int x = dinosaur.getX();
         int y = dinosaur.getY();
 
+        //Bucle para recorrer las celdas adyacentes
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {
                 if (i == 0 && j == 0) continue; // Ignorar la celda actual
                 int adjX = x + i;
                 int adjY = y + j;
 
+                //Verificar si la celda adyacente está dentro del tablero
                 if (adjX >= 0 && adjX < 7 && adjY >= 0 && adjY < 7) {
                     Dinosaur adjacentDinosaur = board[adjX][adjY].getDinosaur();
 
+                    //Verificar si hay un dinosaurio adyacente y que no sea el mismo
                     if (adjacentDinosaur != null && adjacentDinosaur != dinosaur) {
                         boolean wasHunted = dinosaur.huntAttempt(dinosaur, adjacentDinosaur);
                         if (wasHunted) {
@@ -112,12 +123,14 @@ public class BoardService {
         }
     }
 
+    //Metodo que remueve un dinosaurio del tablero
     public void removeDinosaurFromBoard(Dinosaur dinosaur) {
         int x = dinosaur.getX();
         int y = dinosaur.getY();
         board[x][y].setDinosaur(null);
     }
 
+    //Metodo que guarda los movimientos de los dinosaurios en un archivo
     private void logMovements(List<Dinosaur> dinosaurs) {
         try (FileWriter writer = new FileWriter(movementFile, false)) {
             String jsonData = objectMapper.writeValueAsString(dinosaurs);
@@ -127,21 +140,28 @@ public class BoardService {
         }
     }
 
+    //Metodo que retorna los movimientos de los dinosaurios en el tablero
     public Flux<List<Dinosaur>> getDinosaurMovements() {
         return sink.asFlux();
     }
 
+    //Metodo que retorna el tablero
     public Cell[][] getBoard() {
         return board;
     }
 
+    //Clase interna que representa una celda del tablero
     public static class Cell {
+
+        //Atributo
         private Dinosaur dinosaur;
 
+        //Getter
         public Dinosaur getDinosaur() {
             return dinosaur;
         }
 
+        //Setter
         public void setDinosaur(Dinosaur dinosaur) {
             this.dinosaur = dinosaur;
         }

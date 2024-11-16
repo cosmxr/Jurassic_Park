@@ -11,13 +11,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+//Clase que controla la vista de las imágenes de los dinosaurios
 @RestController
 public class ImageController {
 
+    //Metodo que muestra la vista de las imágenes de los dinosaurios
     @GetMapping("/images/{imageName}")
     public ResponseEntity<Resource> getImage(@PathVariable String imageName) {
 
+            //Se obtiene la imagen
             Resource image = new ClassPathResource("images/" + imageName);
+            //Se verifica si la imagen existe y es legible para mostrarla
             if (image.exists() && image.isReadable()) {
                 HttpHeaders headers = new HttpHeaders();
                 headers.add(HttpHeaders.CONTENT_TYPE, "image/jpeg");
